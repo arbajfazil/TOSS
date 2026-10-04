@@ -87,12 +87,16 @@ app.post("/api/login", async (req, res) => {
 // SOCKET AUTH
 io.use((socket, next) => {
   try {
-    socket.user = jwt.verify(
-      socket.handshake.auth.token,
-      process.env.JWT_SECRET
-    );
+    const token = socket.handshake.auth?.token;
+
+    if (!token) {
+      return next(new Error("Authentication token missing."));
+    }
+
+    socket.user = jwt.verify(token, process.env.JWT_SECRET);
     next();
-  } catch {
+  } catch (err) {
+    console.log("Socket auth error:", err.message);
     next(new Error("Please log in again."));
   }
 });
