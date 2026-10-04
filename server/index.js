@@ -46,6 +46,8 @@ app.post("/api/register", async (req, res) => {
   try {
     const { username, password } = req.body;
 
+    console.log("REGISTER:", username);
+
     if (!username || !password || password.length < 6) {
       return res.status(400).json({
         message: "Enter a username and password of at least 6 characters."
@@ -53,19 +55,31 @@ app.post("/api/register", async (req, res) => {
     }
 
     const existing = await User.findOne({ username });
+
     if (existing) {
-      return res.status(409).json({ message: "Username already exists." });
+      return res.status(409).json({
+        message: "Username already exists."
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+
     const user = await User.create({
       username,
       password: hashedPassword
     });
 
-    res.json({ token: createToken(user), username: user.username });
-  } catch {
-    res.status(500).json({ message: "Registration failed." });
+    return res.status(201).json({
+      token: createToken(user),
+      username: user.username
+    });
+
+  } catch (error) {
+    console.error("REGISTER ERROR:", error);
+
+    return res.status(500).json({
+      message: error.message
+    });
   }
 });
 
