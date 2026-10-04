@@ -12,15 +12,14 @@ const app = express();
 const server = http.createServer(app);
 
 app.use(cors({
-  origin: true,
-  credentials: true
+  origin: "*"
 }));
 app.use(express.json());
 
 const io = new Server(server, {
   cors: {
-    origin: true,
-    credentials: true
+    origin: "*",
+    methods: ["GET", "POST"]
   }
 });
 
